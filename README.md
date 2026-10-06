@@ -25,6 +25,7 @@ dotnet run --project ConsoleApp_07_09_2026.csproj
 ## Manual de usuario
 
 Al iniciar, la aplicación muestra el menú principal y el total actual del carrito. Introduce el número de la opción y pulsa **Enter**:
+<img width="547" height="370" alt="image" src="https://github.com/user-attachments/assets/f57e0d37-819e-44b4-9c7f-0869fd8e2d40" />
 
 1. **Explorar catálogo y añadir productos**: selecciona un producto por su número y especifica una cantidad entre 1 y 99. Si ya está en el carrito, se suman las unidades.
 2. **Añadir selección aleatoria (LINQ)**: indica cuántos productos distintos quieres incorporar, de 1 a 6. La aplicación selecciona productos del catálogo al azar y asigna a cada uno una cantidad aleatoria de 1 a 5.
