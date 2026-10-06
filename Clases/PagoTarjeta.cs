@@ -20,17 +20,19 @@ namespace ConsoleApp_07_09_2026.Clases
 
         public bool ProcesarPago(decimal monto)
         {
-            _salidaConsola.EscribirLinea($"\nMonto a cobrar en tarjeta: S/{monto:F2}");
-            _salidaConsola.Escribir("Ingrese los 16 dígitos de su tarjeta: ");
+            _salidaConsola.EscribirLinea("\n  ─────────────── PAGO CON TARJETA ───────────────");
+            _salidaConsola.EscribirLinea($"  Total del pedido: S/{monto:F2}");
+            _salidaConsola.Escribir("  Número de tarjeta (16 dígitos): ");
             string tarjeta = _entradaConsola.LeerLinea();
 
             if (tarjeta.Length == 16)
             {
-                _salidaConsola.EscribirLinea("Conectando con el banco... ¡Cobro aprobado!");
+                _salidaConsola.EscribirLinea("  Procesando pago seguro...");
+                _salidaConsola.EscribirLinea("  ✓ Transacción autorizada.");
                 return true;
             }
 
-            _salidaConsola.EscribirLinea("Número de tarjeta inválido.");
+            _salidaConsola.EscribirLinea("  ⚠ El número de tarjeta debe contener 16 dígitos.");
             return false;
         }
     }

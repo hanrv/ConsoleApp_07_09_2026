@@ -20,18 +20,19 @@ namespace ConsoleApp_07_09_2026.Clases
 
         public bool ProcesarPago(decimal monto)
         {
-            _salidaConsola.EscribirLinea($"\nMonto a pagar: S/{monto:F2}");
-            _salidaConsola.Escribir("Ingrese la cantidad con la que paga: S/");
+            _salidaConsola.EscribirLinea("\n  ───────────── PAGO EN EFECTIVO ─────────────");
+            _salidaConsola.EscribirLinea($"  Total del pedido: S/{monto:F2}");
+            _salidaConsola.Escribir("  Importe recibido: S/");
             decimal billete = _entradaConsola.LeerDecimal();
 
             if (billete >= monto)
             {
                 decimal vuelto = billete - monto;
-                _salidaConsola.EscribirLinea($"Pago en efectivo aceptado. Su vuelto es: S/{vuelto:F2}");
+                _salidaConsola.EscribirLinea($"  ✓ Pago aprobado. Cambio: S/{vuelto:F2}");
                 return true;
             }
 
-            _salidaConsola.EscribirLinea("El dinero entregado no alcanza.");
+            _salidaConsola.EscribirLinea("  ⚠ El importe recibido no cubre el total del pedido.");
             return false;
         }
     }
