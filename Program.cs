@@ -14,7 +14,8 @@ namespace ConsoleApp_07_09_2026
                 var menuCompra = new MenuCompra(
                     lectorConsola,
                     lectorConsola,
-                    new ProductoFactory());
+                    new ProductoFactory(),
+                    new ProductoRepository());
 
                 menuCompra.Ejecutar();
             }

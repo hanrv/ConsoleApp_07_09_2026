@@ -76,5 +76,10 @@ namespace ConsoleApp_07_09_2026.Clases
         {
             return $"({Cantidad}) {Nombre} -> Subtotal: S/{CalcularSubtotal():F2}";
         }
+
+        protected string FormatearDetalle(string tipo, string descripcion)
+        {
+            return $"[{tipo}] {descripcion} -> Subtotal: S/{CalcularSubtotal():F2}";
+        }
     }
 }

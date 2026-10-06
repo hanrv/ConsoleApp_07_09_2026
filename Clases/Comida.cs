@@ -13,7 +13,7 @@
         public override string ObtenerDetalle()
         {
             string estado = EsCaliente ? "Caliente" : "Frío";
-            return $"[Comida] ({Cantidad}) {Nombre} [{estado}] -> Subtotal: S/{CalcularSubtotal():F2}";
+            return FormatearDetalle("Comida", $"({Cantidad}) {Nombre} [{estado}]");
         }
     }
 }

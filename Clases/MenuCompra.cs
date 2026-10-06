@@ -10,18 +10,23 @@ namespace ConsoleApp_07_09_2026.Clases
     /// </summary>
     public class MenuCompra
     {
+        private const string OpcionSalir = "0";
+
         private readonly IEntradaConsola _entrada;
         private readonly ISalidaConsola _salida;
         private readonly IProductoFactory _productoFactory;
+        private readonly IProductoRepository _productoRepository;
 
         public MenuCompra(
             IEntradaConsola entrada,
             ISalidaConsola salida,
-            IProductoFactory productoFactory)
+            IProductoFactory productoFactory,
+            IProductoRepository productoRepository)
         {
             _entrada = entrada;
             _salida = salida;
             _productoFactory = productoFactory;
+            _productoRepository = productoRepository;
         }
 
         public void Ejecutar()
@@ -40,24 +45,23 @@ namespace ConsoleApp_07_09_2026.Clases
 
         private void EjecutarMenu()
         {
-            List<Producto> carrito = new List<Producto>();
             string opcionElegida = string.Empty;
 
-            while (opcionElegida != "0")
+            while (opcionElegida != OpcionSalir)
             {
                 try
                 {
                     MostrarMenuProductos();
                     opcionElegida = _entrada.LeerLinea().Trim().ToLower();
 
-                    if (opcionElegida == "0")
+                    if (opcionElegida == OpcionSalir)
                     {
                         break;
                     }
 
                     int cantidad = LeerCantidadValida();
-                    AgregarProductoAlCarrito(carrito, opcionElegida, cantidad);
-                    MostrarCarrito(carrito);
+                    AgregarProductoAlCarrito(opcionElegida, cantidad);
+                    MostrarCarrito();
                 }
                 catch (ArgumentException ex)
                 {
@@ -65,7 +69,7 @@ namespace ConsoleApp_07_09_2026.Clases
                 }
             }
 
-            FinalizarCompra(carrito);
+            FinalizarCompra();
         }
 
         private void MostrarMenuProductos()
@@ -92,10 +96,9 @@ namespace ConsoleApp_07_09_2026.Clases
             return cantidad;
         }
 
-        private void AgregarProductoAlCarrito(List<Producto> carrito, string nombre, int cantidad)
+        private void AgregarProductoAlCarrito(string nombre, int cantidad)
         {
-            Producto productoExistente = carrito.FirstOrDefault(
-                item => item.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+            Producto? productoExistente = _productoRepository.BuscarPorNombre(nombre);
 
             if (productoExistente != null)
             {
@@ -111,12 +114,13 @@ namespace ConsoleApp_07_09_2026.Clases
                 throw new ArgumentException("Ingrese un producto valido.", nameof(nombre));
             }
 
-            carrito.Add(nuevoProducto);
+            _productoRepository.AgregarOActualizar(nuevoProducto);
         }
 
-        private void MostrarCarrito(List<Producto> carrito)
+        private void MostrarCarrito()
         {
             decimal subtotalAcumulado = 0;
+            List<Producto> carrito = _productoRepository.ObtenerTodos();
 
             _salida.EscribirLinea("\n==============================");
             _salida.EscribirLinea("     CARRITO DE COMPRAS       ");
@@ -133,15 +137,17 @@ namespace ConsoleApp_07_09_2026.Clases
             _salida.EscribirLinea("==============================");
         }
 
-        private void FinalizarCompra(List<Producto> carrito)
+        private void FinalizarCompra()
         {
+            List<Producto> carrito = _productoRepository.ObtenerTodos();
+
             if (carrito.Count == 0)
             {
                 _salida.EscribirLinea("No se realizaron compras.");
                 return;
             }
 
-            decimal totalFinal = carrito.Sum(item => item.CalcularSubtotal());
+            decimal totalFinal = _productoRepository.CalcularTotal();
             IPago formaDePago = SeleccionarMetodoDePago();
 
             if (formaDePago.ProcesarPago(totalFinal))
