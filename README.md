@@ -40,7 +40,6 @@ Al iniciar, la aplicación muestra el menú principal y el total actual del carr
 - **Efectivo**: introduce el importe recibido. Si cubre el total, se calcula y muestra el cambio; si no, puedes volver al menú e intentarlo de nuevo.
 - **Tarjeta**: la simulación solicita un número de 16 caracteres.
 
-> **Importante:** los pagos son únicamente demostrativos. No se conecta con un banco ni se realiza ningún cobro real. No introduzcas datos reales de tarjetas.
 
 ## Notas
 
