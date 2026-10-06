@@ -11,6 +11,15 @@ namespace ConsoleApp_07_09_2026.Clases
     public class MenuCompra
     {
         private const string OpcionSalir = "0";
+        private static readonly (string Nombre, string Categoria, decimal Precio)[] Catalogo =
+        {
+            ("Hamburguesa", "Comidas", 8.50m),
+            ("Empanada", "Comidas", 5.50m),
+            ("Fanta", "Bebidas", 2.50m),
+            ("Frugos", "Bebidas", 3.00m),
+            ("Cuates", "Snacks", 1.00m),
+            ("Chetos", "Snacks", 1.20m)
+        };
 
         private readonly IEntradaConsola _entrada;
         private readonly ISalidaConsola _salida;
@@ -33,7 +42,6 @@ namespace ConsoleApp_07_09_2026.Clases
         {
             try
             {
-                MostrarEjemplosLinq();
                 EjecutarMenu();
             }
             catch (Exception ex)
@@ -45,73 +53,135 @@ namespace ConsoleApp_07_09_2026.Clases
 
         private void EjecutarMenu()
         {
-            string opcionElegida = string.Empty;
-
-            while (opcionElegida != OpcionSalir)
+            while (true)
             {
+                MostrarEncabezado();
+                MostrarMenuPrincipal();
+
                 try
                 {
-                    MostrarMenuProductos();
-                    opcionElegida = _entrada.LeerLinea().Trim().ToLower();
+                    _salida.Escribir("Selecciona una opción: ");
+                    string opcion = _entrada.LeerLinea().Trim();
 
-                    if (opcionElegida == OpcionSalir)
+                    switch (opcion)
                     {
-                        break;
+                        case "1":
+                            AgregarProductoManual();
+                            break;
+                        case "2":
+                            AgregarProductosAleatorios();
+                            break;
+                        case "3":
+                            MostrarCarrito();
+                            break;
+                        case OpcionSalir:
+                            if (FinalizarCompra())
+                            {
+                                return;
+                            }
+                            break;
+                        default:
+                            throw new ArgumentException("Elige una opción disponible del menú.");
                     }
-
-                    int cantidad = LeerCantidadValida();
-                    AgregarProductoAlCarrito(opcionElegida, cantidad);
-                    MostrarCarrito();
                 }
                 catch (ArgumentException ex)
                 {
-                    _salida.EscribirLinea($"Error de entrada: {ex.Message}");
+                    MostrarAviso(ex.Message);
                 }
             }
-
-            FinalizarCompra();
         }
 
-        private void MostrarMenuProductos()
+        private void MostrarEncabezado()
         {
-            _salida.EscribirLinea("\n======= MENU =======");
-            _salida.EscribirLinea("Catalogo de productos:");
-            _salida.EscribirLinea("- Comidas: Hamburguesa(S/8.50), Empanada(S/5.50)");
-            _salida.EscribirLinea("- Bebidas: Fanta(S/2.50), Frugos(S/3.00)");
-            _salida.EscribirLinea("- Snacks: Cuates(S/1.00), Chetos(S/1.20)");
-            _salida.EscribirLinea("Ingresa el producto a comprar:");
-            _salida.EscribirLinea("Para salir y pagar presione 0");
+            _salida.EscribirLinea("\n╔══════════════════════════════════════════════╗");
+            _salida.EscribirLinea("║              GO MARKET ONLINE               ║");
+            _salida.EscribirLinea("║       Calidad y ofertas para tu día          ║");
+            _salida.EscribirLinea("╚══════════════════════════════════════════════╝");
+
+            List<Producto> carrito = _productoRepository.ObtenerTodos();
+            _salida.EscribirLinea($"  Carrito: {carrito.Sum(producto => producto.Cantidad)} artículo(s)  |  Total: S/{_productoRepository.CalcularTotal():F2}");
         }
 
-        private int LeerCantidadValida()
+        private void MostrarMenuPrincipal()
         {
-            _salida.EscribirLinea("Ingrese la cantidad a comprar: ");
-            int cantidad = (int)_entrada.LeerDecimal();
+            _salida.EscribirLinea("\n  ┌────────────────── TIENDA ──────────────────┐");
+            _salida.EscribirLinea("  │  1. Explorar catálogo y añadir productos   │");
+            _salida.EscribirLinea("  │  2. Añadir selección aleatoria (LINQ)       │");
+            _salida.EscribirLinea("  │  3. Ver carrito                            │");
+            _salida.EscribirLinea("  │  0. Pagar y salir                          │");
+            _salida.EscribirLinea("  └───────────────────────────────────────────┘");
+        }
 
-            if (cantidad <= 0)
+        private void AgregarProductoManual()
+        {
+            MostrarCatalogo();
+            int seleccion = LeerEntero("Número de producto: ", 1, Catalogo.Length);
+            var productoSeleccionado = Catalogo[seleccion - 1];
+            int cantidad = LeerEntero("Cantidad: ", 1, 99);
+            AgregarProductoAlCarrito(productoSeleccionado.Nombre, cantidad);
+
+            _salida.EscribirLinea($"✓ {productoSeleccionado.Nombre} × {cantidad} añadido(s) al carrito.");
+        }
+
+        private void AgregarProductosAleatorios()
+        {
+            _salida.EscribirLinea("\n  Carga inteligente: agrega productos y cantidades al azar.");
+            int cantidadTipos = LeerEntero($"  ¿Cuántos productos distintos? (1-{Catalogo.Length}): ", 1, Catalogo.Length);
+
+            var productosGenerados = Catalogo
+                .OrderBy(_ => Random.Shared.NextDouble())
+                .Take(cantidadTipos)
+                .Select(producto => (producto.Nombre, Cantidad: Random.Shared.Next(1, 6)))
+                .ToList();
+
+            foreach (var producto in productosGenerados)
             {
-                throw new ArgumentOutOfRangeException(nameof(cantidad), "La cantidad debe ser mayor a 0.");
+                AgregarProductoAlCarrito(producto.Nombre, producto.Cantidad);
+                _salida.EscribirLinea($"  + {producto.Nombre} × {producto.Cantidad}");
             }
 
-            return cantidad;
+            _salida.EscribirLinea("  ✓ Selección añadida. Revisa el resumen de tu carrito.");
+        }
+
+        private void MostrarCatalogo()
+        {
+            _salida.EscribirLinea("\n  ═══════════════════ CATÁLOGO ═══════════════════");
+            _salida.EscribirLinea("  Nº  PRODUCTO           CATEGORÍA        PRECIO");
+            _salida.EscribirLinea("  ───────────────────────────────────────────────");
+
+            for (int indice = 0; indice < Catalogo.Length; indice++)
+            {
+                var producto = Catalogo[indice];
+                _salida.EscribirLinea($"  {indice + 1,-3} {producto.Nombre,-19} {producto.Categoria,-15} S/{producto.Precio,6:F2}");
+            }
+
+            _salida.EscribirLinea("  ───────────────────────────────────────────────");
+        }
+
+        private int LeerEntero(string mensaje, int minimo, int maximo)
+        {
+            _salida.Escribir(mensaje);
+            if (!int.TryParse(_entrada.LeerLinea(), out int valor) || valor < minimo || valor > maximo)
+            {
+                throw new ArgumentOutOfRangeException(nameof(valor), $"Introduce un número entre {minimo} y {maximo}.");
+            }
+
+            return valor;
         }
 
         private void AgregarProductoAlCarrito(string nombre, int cantidad)
         {
             Producto? productoExistente = _productoRepository.BuscarPorNombre(nombre);
-
             if (productoExistente != null)
             {
                 productoExistente.Cantidad += cantidad;
-                _salida.EscribirLinea("Se sumo la cantidad al producto existente.");
                 return;
             }
 
             Producto nuevoProducto = _productoFactory.CrearProducto(nombre, cantidad);
-
             if (nuevoProducto == null)
             {
-                throw new ArgumentException("Ingrese un producto valido.", nameof(nombre));
+                throw new ArgumentException("El producto seleccionado no está disponible.", nameof(nombre));
             }
 
             _productoRepository.AgregarOActualizar(nuevoProducto);
@@ -119,49 +189,61 @@ namespace ConsoleApp_07_09_2026.Clases
 
         private void MostrarCarrito()
         {
-            decimal subtotalAcumulado = 0;
-            List<Producto> carrito = _productoRepository.ObtenerTodos();
+            List<Producto> carrito = _productoRepository.ObtenerTodos()
+                .OrderBy(producto => producto.Nombre)
+                .ToList();
 
-            _salida.EscribirLinea("\n==============================");
-            _salida.EscribirLinea("     CARRITO DE COMPRAS       ");
-            _salida.EscribirLinea("==============================");
-
-            foreach (Producto item in carrito)
-            {
-                _salida.EscribirLinea(item.ObtenerDetalle());
-                subtotalAcumulado += item.CalcularSubtotal();
-            }
-
-            _salida.EscribirLinea("------------------------------");
-            _salida.EscribirLinea($"Total acumulado: S/{subtotalAcumulado:F2}");
-            _salida.EscribirLinea("==============================");
-        }
-
-        private void FinalizarCompra()
-        {
-            List<Producto> carrito = _productoRepository.ObtenerTodos();
-
+            _salida.EscribirLinea("\n  ═══════════════════ TU CARRITO ═══════════════════");
             if (carrito.Count == 0)
             {
-                _salida.EscribirLinea("No se realizaron compras.");
+                _salida.EscribirLinea("  Aún no has añadido productos. ¡Explora el catálogo!");
                 return;
             }
 
-            decimal totalFinal = _productoRepository.CalcularTotal();
-            IPago formaDePago = SeleccionarMetodoDePago();
-
-            if (formaDePago.ProcesarPago(totalFinal))
+            _salida.EscribirLinea("  PRODUCTO                       CANTIDAD     SUBTOTAL");
+            _salida.EscribirLinea("  ───────────────────────────────────────────────────");
+            foreach (Producto producto in carrito)
             {
-                _salida.EscribirLinea("\n!Compra finalizada exitosamente!");
+                _salida.EscribirLinea($"  {producto.Nombre,-30} {producto.Cantidad,5}       S/{producto.CalcularSubtotal(),7:F2}");
             }
+
+            _salida.EscribirLinea("  ───────────────────────────────────────────────────");
+            _salida.EscribirLinea($"  Total ({carrito.Sum(producto => producto.Cantidad)} artículos):                  S/{_productoRepository.CalcularTotal():F2}");
+        }
+
+        private bool FinalizarCompra()
+        {
+            List<Producto> carrito = _productoRepository.ObtenerTodos();
+            if (carrito.Count == 0)
+            {
+                _salida.EscribirLinea("\nTu carrito está vacío. ¡Vuelve pronto!");
+                return true;
+            }
+
+            MostrarCarrito();
+            IPago formaDePago = SeleccionarMetodoDePago();
+            if (!formaDePago.ProcesarPago(_productoRepository.CalcularTotal()))
+            {
+                MostrarAviso("No se pudo completar el pago. Puedes intentarlo de nuevo.");
+                return false;
+            }
+
+            _salida.EscribirLinea("\n  ✓ ¡Gracias por tu compra! Pedido confirmado.");
+            _salida.EscribirLinea("  Recibirás tu comprobante al finalizar la operación.");
+            return true;
+        }
+
+        private void MostrarAviso(string mensaje)
+        {
+            _salida.EscribirLinea($"\n  ⚠ {mensaje}");
         }
 
         private IPago SeleccionarMetodoDePago()
         {
-            _salida.EscribirLinea("\nSeleccione el metodo de pago:");
-            _salida.EscribirLinea("1. Efectivo");
-            _salida.EscribirLinea("2. Tarjeta");
-            _salida.Escribir("Opcion: ");
+            _salida.EscribirLinea("\n  ═══════════════ MÉTODO DE PAGO ═══════════════");
+            _salida.EscribirLinea("  1. Efectivo");
+            _salida.EscribirLinea("  2. Tarjeta");
+            _salida.Escribir("  Selecciona el método: ");
             string metodo = _entrada.LeerLinea().Trim();
 
             return metodo switch
@@ -172,55 +254,5 @@ namespace ConsoleApp_07_09_2026.Clases
             };
         }
 
-        private void MostrarEjemplosLinq()
-        {
-            List<Producto> productos = new List<Producto>
-            {
-                new Producto("Pan", 1.50m, 2),
-                new Producto("Leche", 4.00m, 1),
-                new Producto("Arroz", 5.50m, 3),
-                new Producto("Azucar", 4.50m, 2),
-                new Producto("Cafe", 8.00m, 1),
-                new Producto("Fideos", 3.50m, 4),
-                new Producto("Atun", 6.00m, 2),
-                new Producto("Galletas", 2.50m, 5),
-                new Producto("Queso", 9.00m, 1),
-                new Producto("Jamon", 10.00m, 2),
-                new Producto("Pan", 1.50m, 3),
-                new Producto("Leche", 4.00m, 2),
-                new Producto("Arroz", 5.50m, 1),
-                new Producto("Azucar", 4.50m, 4),
-                new Producto("Cafe", 8.00m, 2),
-                new Producto("Fideos", 3.50m, 1),
-                new Producto("Atun", 6.00m, 3),
-                new Producto("Galletas", 2.50m, 2),
-                new Producto("Queso", 9.00m, 2),
-                new Producto("Jamon", 10.00m, 1)
-            };
-
-            _salida.EscribirLinea("\n========== CONSULTAS LINQ ==========");
-            _salida.EscribirLinea("Where - Productos con precio mayor que 5:");
-            foreach (Producto producto in productos.Where(producto => producto.Precio > 5))
-            {
-                _salida.EscribirLinea($"Nombre: {producto.Nombre}, Precio: S/{producto.Precio:F2}, Cantidad: {producto.Cantidad}");
-            }
-
-            _salida.EscribirLinea("Select - Nombres de los productos:");
-            _salida.EscribirLinea(string.Join(", ", productos.Select(producto => producto.Nombre)));
-
-            _salida.EscribirLinea("OrderBy - Ordenados por precio:");
-            foreach (Producto producto in productos.OrderBy(producto => producto.Precio))
-            {
-                _salida.EscribirLinea($"Nombre: {producto.Nombre}, Precio: S/{producto.Precio:F2}, Cantidad: {producto.Cantidad}");
-            }
-
-            _salida.EscribirLinea("GroupBy - Agrupados por nombre:");
-            foreach (IGrouping<string, Producto> grupo in productos.GroupBy(producto => producto.Nombre))
-            {
-                _salida.EscribirLinea($"{grupo.Key}: {grupo.Count()} productos");
-            }
-
-            _salida.EscribirLinea("====================================\n");
-        }
     }
 }
