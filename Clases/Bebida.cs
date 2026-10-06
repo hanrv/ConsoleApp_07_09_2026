@@ -12,7 +12,7 @@
 
         public override string ObtenerDetalle()
         {
-            return $"[Bebida] ({Cantidad}) {Nombre} ({Mililitros} ml) -> Subtotal: S/{CalcularSubtotal():F2}";
+            return FormatearDetalle("Bebida", $"({Cantidad}) {Nombre} ({Mililitros} ml)");
         }
     }
 }
