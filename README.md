@@ -5,8 +5,6 @@
 ### Tu tienda online simulada, directo desde la consola
 
 ![C#](https://img.shields.io/badge/C%23-512BD4?style=for-the-badge&logo=csharp&logoColor=white)
-![.NET](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=dotnet&logoColor=white)
-![Console](https://img.shields.io/badge/App-Consola-4D4D4D?style=for-the-badge&logo=windowsterminal&logoColor=white)
 ![LINQ](https://img.shields.io/badge/LINQ-Aleatorio-success?style=for-the-badge)
 
 </div>
