@@ -2,10 +2,6 @@
 
 Aplicación de consola en C# que simula una tienda online. Permite consultar el catálogo, añadir productos al carrito manualmente o mediante una selección aleatoria y finalizar una compra simulada.
 
-## Requisitos
-
-- .NET 10 SDK.
-- Terminal compatible con UTF-8 para visualizar correctamente los marcos y símbolos de la interfaz.
 
 ## Cómo iniciar
 
