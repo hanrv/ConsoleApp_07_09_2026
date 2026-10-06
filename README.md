@@ -1,11 +1,21 @@
 <div align="center">
 
-# 🛒 Go Market Online
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:512BD4,100:9B4F96&height=200&section=header&text=Go%20Market%20Online&fontSize=50&fontColor=ffffff&fontAlignY=38&desc=Tu%20tienda%20online%20simulada%20en%20consola&descAlignY=58&descSize=18" alt="Go Market Online" width="100%" />
 
-### Tu tienda online simulada, directo desde la consola
+<a href="https://learn.microsoft.com/dotnet/csharp/">
+  <img src="https://img.shields.io/badge/C%23-Console%20App-239120?style=for-the-badge&logo=csharp&logoColor=white" alt="C#" />
+</a>
+<a href="https://dotnet.microsoft.com/">
+  <img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET" />
+</a>
+<a href="https://learn.microsoft.com/dotnet/csharp/linq/">
+  <img src="https://img.shields.io/badge/LINQ-Language%20Integrated%20Query-9B4F96?style=for-the-badge&logo=dotnet&logoColor=white" alt="LINQ" />
+</a>
+<img src="https://img.shields.io/badge/Terminal-Windows%20%7C%20macOS%20%7C%20Linux-4D4D4D?style=for-the-badge&logo=gnometerminal&logoColor=white" alt="Terminal" />
 
-![C#](https://img.shields.io/badge/C%23-512BD4?style=for-the-badge&logo=csharp&logoColor=white)
-![LINQ](https://img.shields.io/badge/LINQ-Aleatorio-success?style=for-the-badge)
+<br /><br />
+
+<img src="https://skillicons.dev/icons?i=cs,dotnet,visualstudio,git,github&perline=5" alt="Tecnologías" />
 
 </div>
 
